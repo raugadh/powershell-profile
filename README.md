@@ -1,5 +1,5 @@
 # 🎨 PowerShell Profile (Pretty PowerShell)
-
+This is A Fork of Chris's Repo based on my personal requirements
 A stylish and functional PowerShell profile that looks and feels almost as good as a Linux terminal.
 
 ## ⚡ One Line Install (Elevated PowerShell Recommended)
@@ -7,7 +7,7 @@ A stylish and functional PowerShell profile that looks and feels almost as good 
 Execute the following command in an elevated PowerShell window to install the PowerShell profile:
 
 ```
-irm "https://github.com/ChrisTitusTech/powershell-profile/raw/main/setup.ps1" | iex
+irm "https://github.com/raugadh/powershell-profile/raw/main/setup.ps1" | iex
 ```
 
 ## 🛠️ Fix the Missing Font

@@ -3,12 +3,6 @@
 
 $debug = $false
 
-# Define the path to the file that stores the last execution time
-$timeFilePath = "$env:USERPROFILE\Documents\PowerShell\LastExecutionTime.txt"
-
-# Define the update interval in days, set to -1 to always check
-$updateInterval = 7
-
 if ($debug) {
     Write-Host "#######################################" -ForegroundColor Red
     Write-Host "#           Debug mode enabled        #" -ForegroundColor Red
@@ -43,9 +37,6 @@ if ([bool]([System.Security.Principal.WindowsIdentity]::GetCurrent()).IsSystem) 
     [System.Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 'true', [System.EnvironmentVariableTarget]::Machine)
 }
 
-# Initial GitHub.com connectivity check with 1 second timeout
-$global:canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
-
 # Import Modules and External Profiles
 # Ensure Terminal-Icons module is installed before importing
 if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
@@ -60,7 +51,7 @@ if (Test-Path($ChocolateyProfile)) {
 # Check for Profile Updates
 function Update-Profile {
     try {
-        $url = "https://raw.githubusercontent.com/ChrisTitusTech/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
+        $url = "https://raw.githubusercontent.com/raugadh/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
         $oldhash = Get-FileHash $PROFILE
         Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
         $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
@@ -75,22 +66,6 @@ function Update-Profile {
     } finally {
         Remove-Item "$env:temp/Microsoft.PowerShell_profile.ps1" -ErrorAction SilentlyContinue
     }
-}
-
-# Check if not in debug mode AND (updateInterval is -1 OR file doesn't exist OR time difference is greater than the update interval)
-if (-not $debug -and `
-    ($updateInterval -eq -1 -or `
-      -not (Test-Path $timeFilePath) -or `
-      ((Get-Date) - [datetime]::ParseExact((Get-Content -Path $timeFilePath), 'yyyy-MM-dd', $null)).TotalDays -gt $updateInterval)) {
-
-    Update-Profile
-    $currentTime = Get-Date -Format 'yyyy-MM-dd'
-    $currentTime | Out-File -FilePath $timeFilePath
-
-} elseif (-not $debug) {
-    Write-Warning "Profile update skipped. Last update check was within the last $updateInterval day(s)."
-} else {
-    Write-Warning "Skipping profile update check in debug mode"
 }
 
 function Update-PowerShell {
@@ -115,22 +90,6 @@ function Update-PowerShell {
     } catch {
         Write-Error "Failed to update PowerShell. Error: $_"
     }
-}
-
-# skip in debug mode
-# Check if not in debug mode AND (updateInterval is -1 OR file doesn't exist OR time difference is greater than the update interval)
-if (-not $debug -and `
-    ($updateInterval -eq -1 -or `
-     -not (Test-Path $timeFilePath) -or `
-     ((Get-Date).Date - [datetime]::ParseExact((Get-Content -Path $timeFilePath), 'yyyy-MM-dd', $null).Date).TotalDays -gt $updateInterval)) {
-
-    Update-PowerShell
-    $currentTime = Get-Date -Format 'yyyy-MM-dd'
-    $currentTime | Out-File -FilePath $timeFilePath
-} elseif (-not $debug) {
-    Write-Warning "PowerShell update skipped. Last update check was within the last $updateInterval day(s)."
-} else {
-    Write-Warning "Skipping PowerShell update in debug mode"
 }
 
 function Clear-Cache {
@@ -177,8 +136,8 @@ $EDITOR = if (Test-CommandExists nvim) { 'nvim' }
           elseif (Test-CommandExists vim) { 'vim' }
           elseif (Test-CommandExists vi) { 'vi' }
           elseif (Test-CommandExists code) { 'code' }
-          elseif (Test-CommandExists notepad++) { 'notepad++' }
           elseif (Test-CommandExists sublime_text) { 'sublime_text' }
+          elseif (Test-CommandExists notepad++) { 'notepad++' }
           else { 'notepad' }
 Set-Alias -Name vim -Value $EDITOR
 
@@ -443,6 +402,11 @@ function cpy { Set-Clipboard $args[0] }
 
 function pst { Get-Clipboard }
 
+#other Personal Shortcuts
+function subl { sublime_text "$args" }
+function pa { php artisan "$args" }
+function pint { './vendor/bin/pint' }
+
 # Enhanced PowerShell Experience
 # Enhanced PSReadLine Configuration
 $PSReadLineOptions = @{
@@ -527,9 +491,9 @@ function Get-Theme {
             Invoke-Expression $existingTheme
             return
         }
-        oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+        oh-my-posh init pwsh --config https://raw.githubusercontent.com/raugadh/powershell-profile/main/oh-my-posh.omp.json | Invoke-Expression
     } else {
-        oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+        oh-my-posh init pwsh --config https://raw.githubusercontent.com/raugadh/powershell-profile/main/oh-my-posh.omp.json | Invoke-Expression
     }
 }
 
@@ -637,6 +601,12 @@ $($PSStyle.Foreground.Green)cpy$($PSStyle.Reset) <text> - Copies the specified t
 
 $($PSStyle.Foreground.Green)pst$($PSStyle.Reset) - Retrieves text from the clipboard.
 
+$($PSStyle.Foreground.Green)subl$($PSStyle.Reset) - Opens Sublime Text.
+
+$($PSStyle.Foreground.Green)pa$($PSStyle.Reset) - Shortcut for 'php artisan'.
+
+$($PSStyle.Foreground.Green)pint$($PSStyle.Reset) - Shortcut for './vendor/bin/pint'.
+
 Use '$($PSStyle.Foreground.Magenta)Show-Help$($PSStyle.Reset)' to display this help message.
 "@
     Write-Host $helpText
@@ -645,5 +615,3 @@ Use '$($PSStyle.Foreground.Magenta)Show-Help$($PSStyle.Reset)' to display this h
 if (Test-Path "$PSScriptRoot\CTTcustom.ps1") {
     Invoke-Expression -Command "& `"$PSScriptRoot\CTTcustom.ps1`""
 }
-
-Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to display help$($PSStyle.Reset)"
