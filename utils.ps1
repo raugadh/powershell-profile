@@ -376,8 +376,102 @@ function pst { Get-Clipboard }
 
 #other Personal Shortcuts
 function subl { sublime_text "$args" }
-function pa { php artisan "$args" }
-function pint { './vendor/bin/pint' }
+function pa {
+    if (Test-Path "./artisan" -PathType Leaf) {    
+        php artisan "$args"
+    }
+    else {
+        Write-Warning "Not Laravel Directory."
+    } 
+}
+function papi {
+    if (Test-Path "./artisan" -PathType Leaf) {    
+        php artisan project:init
+    }
+    else {
+        Write-Warning "Not Laravel Directory."
+    } 
+}
+function papu {
+    if (Test-Path "./artisan" -PathType Leaf) {    
+        php artisan project:update
+    }
+    else {
+        Write-Warning "Not Laravel Directory."
+    } 
+}
+function papc {
+    if (Test-Path "./artisan" -PathType Leaf) {    
+        php artisan project:cache
+    }
+    else {
+        Write-Warning "Not Laravel Directory."
+    } 
+}
+function padi {
+    if (Test-Path "./artisan" -PathType Leaf) {    
+        php artisan dev:init
+    }
+    else {
+        Write-Warning "Not Laravel Directory."
+    } 
+}
+function pint {
+    if (Test-Path "./artisan" -PathType Leaf) {    
+        ./vendor/bin/pint "$args"
+    }
+    else {
+        Write-Warning "Not Laravel Directory."
+    } 
+}
+function bi {
+    if (Test-Path "./package.json" -PathType Leaf) {    
+        bun install "$args"
+    }
+    else {
+        Write-Warning "Node packages don't exist."
+    } 
+}
+function bu {
+    if (Test-Path "./package.json" -PathType Leaf) {    
+        bun update "$args"
+    }
+    else {
+        Write-Warning "Node packages don't exist."
+    } 
+}
+function bx {
+    if (Test-Path "./package.json" -PathType Leaf) {    
+        bunx "$args"
+    }
+    else {
+        Write-Warning "Node packages don't exist."
+    } 
+}
+function brb {
+    if (Test-Path "./package.json" -PathType Leaf) {    
+        bun run build "$args"
+    }
+    else {
+        Write-Warning "Node packages don't exist."
+    } 
+}
+function brd {
+    if (Test-Path "./package.json" -PathType Leaf) {    
+        bun run dev "$args"
+    }
+    else {
+        Write-Warning "Node packages don't exist."
+    } 
+}
+function cr {
+    if (Test-Path "./composer.json" -PathType Leaf) {    
+        composer require "$args"
+    }
+    else {
+        Write-Warning "Not Composer Directory."
+    } 
+}
 
 # Custom completion for common commands
 $scriptblock = {
