@@ -48,7 +48,8 @@ function Install-NerdFonts {
 
             Remove-Item -Path $extractPath -Recurse -Force
             Remove-Item -Path $zipFilePath -Force
-        } else {
+        }
+        else {
             Write-Host "Font ${FontDisplayName} already installed"
         }
     }
@@ -79,7 +80,9 @@ if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
         }
 
         Invoke-RestMethod https://github.com/raugadh/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
+        Invoke-RestMethod https://github.com/raugadh/powershell-profile/raw/main/utils.ps1 -OutFile $profilePath\utils.ps1
         Write-Host "The profile @ [$PROFILE] has been created."
+        Write-Host "The profile @ [$profilePath\utils.ps1] has been created."
         Write-Host "If you want to make any personal changes or customizations, please do so at [$profilePath\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes"
     }
     catch {
@@ -87,10 +90,25 @@ if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
     }
 }
 else {
+    $profilePath = ""
+    if ($PSVersionTable.PSEdition -eq "Core") {
+        $profilePath = "$env:userprofile\Documents\Powershell"
+    }
+    elseif ($PSVersionTable.PSEdition -eq "Desktop") {
+        $profilePath = "$env:userprofile\Documents\WindowsPowerShell"
+    }
+
+    if (!(Test-Path -Path $profilePath)) {
+        New-Item -Path $profilePath -ItemType "directory"
+    }
     try {
         Get-Item -Path $PROFILE | Move-Item -Destination "oldprofile.ps1" -Force
+        Get-Item -Path $profilePath\utils.ps1 | Move-Item -Destination "oldutils.ps1" -Force
+
         Invoke-RestMethod https://github.com/raugadh/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
+        Invoke-RestMethod https://github.com/raugadh/powershell-profile/raw/main/utils.ps1 -OutFile $profilePath\utils.ps1
         Write-Host "The profile @ [$PROFILE] has been created and old profile removed."
+        Write-Host "The profile @ [$profilePath\utils.ps1] has been created and old profile removed."
         Write-Host "Please back up any persistent components of your old profile to [$HOME\Documents\PowerShell\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes"
     }
     catch {
@@ -112,7 +130,8 @@ Install-NerdFonts -FontName "Hack" -FontDisplayName "Hack NF"
 # Final check and message to the user
 if ((Test-Path -Path $PROFILE) -and (winget list --name "OhMyPosh" -e) -and ($fontFamilies -contains "Hack NF")) {
     Write-Host "Setup completed successfully. Please restart your PowerShell session to apply changes."
-} else {
+}
+else {
     Write-Warning "Setup completed with errors. Please check the error messages above."
 }
 
