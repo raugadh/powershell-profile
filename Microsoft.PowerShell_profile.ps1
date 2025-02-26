@@ -52,16 +52,28 @@ if (Test-Path($ChocolateyProfile)) {
 # Check for Profile Updates
 function Update-Profile {
 	try {
-		$url = "https://raw.githubusercontent.com/raugadh/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
-		$oldhash = Get-FileHash $PROFILE
-		Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
-		$newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
-		if ($newhash.Hash -ne $oldhash.Hash) {
+		$profilePath = Split-Path -Path $PROFILE
+		$mainUrl = "https://raw.githubusercontent.com/raugadh/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
+		$mainoldhash = Get-FileHash $PROFILE
+		Invoke-RestMethod $mainUrl -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
+		$newmainhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
+		if ($newmainhash.Hash -ne $mainoldhash.Hash) {
 			Copy-Item -Path "$env:temp/Microsoft.PowerShell_profile.ps1" -Destination $PROFILE -Force
 			Write-Host "Profile has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
 		}
 		else {
 			Write-Host "Profile is up to date." -ForegroundColor Green
+		}
+		$utilsUrl = "https://raw.githubusercontent.com/raugadh/powershell-profile/main/utils.ps1"
+		$utilsoldhash = Get-FileHash "$profilePath/utils.ps1"
+		Invoke-RestMethod $utilsUrl -OutFile "$env:temp/utils.ps1"
+		$newutilshash = Get-FileHash "$env:temp/utils.ps1"
+		if ($newutilshash.Hash -ne $utilsoldhash.Hash) {
+			Copy-Item -Path "$env:temp/utils.ps1" -Destination "$profilePath/utils.ps1" -Force
+			Write-Host "Utils has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
+		}
+		else {
+			Write-Host "Utils is up to date." -ForegroundColor Green
 		}
 	}
  catch {
@@ -69,6 +81,7 @@ function Update-Profile {
 	}
  finally {
 		Remove-Item "$env:temp/Microsoft.PowerShell_profile.ps1" -ErrorAction SilentlyContinue
+		Remove-Item "$env:temp/utils.ps1" -ErrorAction SilentlyContinue
 	}
 }
 
