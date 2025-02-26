@@ -20,15 +20,14 @@ function Test-InternetConnection {
 function Install-NerdFonts {
     param (
         [string]$FontName = "Hack",
-        [string]$FontDisplayName = "Hack NF",
-        [string]$Version = "latest"
+        [string]$FontDisplayName = "Hack NF"
     )
 
     try {
         [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
         $fontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Families.Name
         if ($fontFamilies -notcontains "${FontDisplayName}") {
-            $fontZipUrl = "https://github.com/ryanoasis/nerd-fonts/releases/${Version}/download/${FontName}.zip"
+            $fontZipUrl = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/${FontName}.zip"
             $zipFilePath = "$env:TEMP\${FontName}.zip"
             $extractPath = "$env:TEMP\${FontName}"
 
