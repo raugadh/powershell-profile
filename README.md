@@ -1,5 +1,5 @@
 # 🎨 PowerShell Profile (Pretty PowerShell)
-This is A Fork of Chris's Repo based on my personal requirements
+This is A Fork of [Chris's Repo](https://github.com/ChrisTitusTech/powershell-profile) changed to my personal preference, and attempt to some performance improvements using [ProfileAsync](https://github.com/fsackur/ProfileAsync)<br>
 A stylish and functional PowerShell profile that looks and feels almost as good as a Linux terminal.
 
 ## ⚡ One Line Install (Elevated PowerShell Recommended)
